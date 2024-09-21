@@ -1,8 +1,5 @@
-import { db } from "@/services/db";
-import { users } from "@/services/db/schemas/user";
-import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import { signIn } from "next-auth/react";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,31 +14,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await db.query.users.findFirst({
-      where: eq(users.email, data.email),
+    await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
     });
-    if (!user) {
-      return NextResponse.json(
-        {
-          error_code: "UNAUTHORIZED",
-          error_description: "Emai/ e/ou senha invalidos",
-        },
-        { status: 401 },
-      );
-    }
 
-    const authorized = await bcrypt.compare(data.password, user.password);
-    if (!authorized) {
-      return NextResponse.json(
-        {
-          error_code: "UNAUTHORIZED",
-          error_description: "Emai/ e/ou senha invalidos",
-        },
-        { status: 401 },
-      );
-    }
-
-    return NextResponse.json({ success: true, user: user });
+    return NextResponse.json({
+      success: true,
+      message: "Login efetuado com sucesso",
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

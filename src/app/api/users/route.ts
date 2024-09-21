@@ -2,6 +2,8 @@ import { db } from "@/services/db";
 import { NewUser, users } from "@/services/db/schemas/user";
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
+import { signIn } from "@/services/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,7 +30,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const newUser = await db.insert(users).values(userData);
+    const hashedPassword = await bcrypt.hash(userData.password, 10); // O número 10 é o salt rounds
+    const newUserData = {
+      ...userData,
+      password: hashedPassword,
+    };
+
+    const newUser = await db.insert(users).values(newUserData).returning();
+    await signIn("credentials", {
+      email: newUser[0].email,
+      password: newUser[0].password,
+      redirect: false,
+    });
+
     return NextResponse.json({ success: true, user: newUser });
   } catch (error) {
     console.error(error);

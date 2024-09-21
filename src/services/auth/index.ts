@@ -1,7 +1,9 @@
-import { toast } from "@/hooks/use-toast";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { User } from "../db/schemas/user";
+import { users } from "../db/schemas/user";
+import { db } from "../db";
+import { eq } from "drizzle-orm";
+import bcrypt from "bcrypt";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -11,29 +13,19 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        const response = await fetch("/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: credentials?.email,
-            password: credentials?.password,
-          }),
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, credentials.email as string),
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          toast({
-            title: errorData.error_code,
-            description: errorData.error_description,
-            variant: "destructive",
-          });
-          throw new Error("Failed to login");
-        }
+        if (!user) throw new Error("Email e/ou senha invalido(s)");
 
-        const data: { sucess: boolean; user: User } = await response.json();
-        return data.user;
+        const authorized = await bcrypt.compare(
+          credentials.password as string,
+          user.password,
+        );
+        if (!authorized) throw new Error("Email e/ou senha invalido(s)");
+
+        return user;
       },
     }),
   ],
