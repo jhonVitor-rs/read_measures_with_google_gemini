@@ -1,4 +1,6 @@
+import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { measures } from "./measure";
 
 export const users = pgTable("user", {
   id: text("id")
@@ -10,6 +12,10 @@ export const users = pgTable("user", {
   image: text("image"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const userMeasures = relations(users, ({ many }) => ({
+  measures: many(measures),
+}));
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
