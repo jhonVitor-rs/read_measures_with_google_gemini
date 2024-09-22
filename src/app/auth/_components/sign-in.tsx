@@ -21,6 +21,9 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { SignInAssistant } from "../actions";
 
 const UserLoginSchema = z.object({
   email: z
@@ -34,12 +37,35 @@ const UserLoginSchema = z.object({
 });
 
 export function SignIn() {
+  const router = useRouter();
+
   const form = useForm({
     resolver: zodResolver(UserLoginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
-    console.log(data);
+    const { success, message } = await SignInAssistant({
+      email: data.email,
+      password: data.password,
+    });
+
+    if (!success) {
+      toast({
+        title: "Erro",
+        description: message as string,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Sucesso",
+        description: message,
+      });
+      router.push("/");
+    }
   });
 
   return (

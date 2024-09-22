@@ -22,8 +22,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { signIn } from "next-auth/react"; // Use from next-auth/react
 import { useRouter } from "next/navigation";
+import { CreateUser } from "../actions";
 
 const UserSchema = z.object({
   name: z
@@ -42,49 +42,34 @@ const UserSchema = z.object({
 export function SignUp() {
   const form = useForm({
     resolver: zodResolver(UserSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+    },
   });
 
   const router = useRouter(); // Use router to navigate after successful sign-in
 
   const onSubmit = form.handleSubmit(async (data) => {
-    const response = await fetch("/api/users", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: data.name,
-        email: data.email,
-        password: data.password,
-      }),
+    const { success, message } = await CreateUser({
+      name: data.name,
+      email: data.email,
+      password: data.password,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
+    if (!success) {
       toast({
-        title: errorData.error_code,
-        description: errorData.error_description,
+        title: "Erro",
+        description: message,
         variant: "destructive",
       });
     } else {
-      const responseData = await response.json();
-
-      const result = await signIn("credentials", {
-        redirect: false, // Avoid redirection by NextAuth
-        email: responseData.user.email,
-        password: data.password, // Use the password from the form directly
+      toast({
+        title: "Sucesso",
+        description: message,
       });
-
-      if (result?.error) {
-        toast({
-          title: "Sign-in Error",
-          description: result.error,
-          variant: "destructive",
-        });
-      } else {
-        // Redirect to the dashboard or another page after successful sign-in
-        router.push("/dashboard");
-      }
+      router.push("/");
     }
   });
 

@@ -29,4 +29,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    signIn: async ({ user, account }) => {
+      if (account && account.provider === "credentials" && user) {
+        return Promise.resolve(true);
+      } else {
+        return Promise.resolve(false);
+      }
+    },
+    jwt: async ({ token, user }) => {
+      if (user && user.id) {
+        token.id = user.id.toString();
+      }
+      return Promise.resolve(token);
+    },
+    session: async ({ session, token }) => {
+      session.user.id = token.id as string;
+      return session;
+    },
+  },
 });
