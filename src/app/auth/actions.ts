@@ -8,7 +8,7 @@ import { eq } from "drizzle-orm/expressions";
 
 export async function GetSession() {
   const session = await auth();
-  if (!session || !session.user) {
+  if (!session || !session.user || !session.user.id) {
     signOut();
     throw new Error("User is not logged into the application!!!");
   }

@@ -1,5 +1,12 @@
 import { relations } from "drizzle-orm";
-import { boolean, date, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  date,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+} from "drizzle-orm/pg-core";
 import { users } from "./user";
 
 export const measures = pgTable("measure", {
@@ -8,6 +15,7 @@ export const measures = pgTable("measure", {
     .$defaultFn(() => crypto.randomUUID()),
   userId: text("customer_code").notNull(),
   measureDatetime: date("measure_datetime").notNull(),
+  measureValue: integer("measure_value"),
   measureType: text("measure_type").notNull(),
   imageUrl: text("image_url"),
   hasConfirmed: boolean("has_confirmed").default(false),
@@ -22,4 +30,3 @@ export const measureUser = relations(measures, ({ one }) => ({
 }));
 
 export type Measure = typeof measures.$inferSelect;
-export type NewMwasure = typeof measures.$inferInsert;
