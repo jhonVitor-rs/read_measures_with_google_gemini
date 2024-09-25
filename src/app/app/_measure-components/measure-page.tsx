@@ -34,6 +34,7 @@ import { Columns } from "./columns";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/loader";
 import { SelectMeasureType } from "./select-measure-type";
+import { NewMeasureForm } from "./new-measure-form";
 
 export function MeasurePage() {
   const [measureType, setMeasureType] = useState("");
@@ -105,6 +106,9 @@ export function MeasurePage() {
           measureType={measureType}
           onChange={changeMeasureType}
         />
+        <NewMeasureForm>
+          <Button>Addicionar nova medição</Button>
+        </NewMeasureForm>
       </CardHeader>
       <CardContent>
         <Table>

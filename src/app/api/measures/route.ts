@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 interface NewMeasure {
   image: string;
-  measure_datetime: Date;
+  measure_datetime: string;
   measure_type: "WATER" | "GAS";
 }
 
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
       .insert(measures)
       .values({
         userId: session.id as string,
-        measureDatetime: measureData.measure_datetime.toISOString(),
+        measureDatetime: measureData.measure_datetime,
         measureType: measureData.measure_type,
         hasConfirmed: false,
         imageUrl: image_url,

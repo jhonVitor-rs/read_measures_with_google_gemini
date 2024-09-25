@@ -11,7 +11,10 @@ const fileManager = new GoogleAIFileManager(
 
 export async function uploadImage(imageBase64: string) {
   try {
-    const tempFilePath = await base64ToTempFile(imageBase64);
+    const { mimeType, base64Data } = extractMimeTypeAndData(imageBase64);
+    const extension = mimeType.split("/")[1];
+
+    const tempFilePath = await base64ToTempFile(base64Data, extension);
     const uploadResponse = await fileManager.uploadFile(tempFilePath, {
       mimeType: "image/jpeg",
       displayName: "Upload Image",
@@ -30,11 +33,22 @@ export async function uploadImage(imageBase64: string) {
 }
 
 // Converção de base64 para uma imagem .jpeg
-async function base64ToTempFile(image: string) {
+async function base64ToTempFile(image: string, extension: string) {
   const buffer = Buffer.from(image, "base64");
-  const tempFilePath = path.join(__dirname, `temp-${uuidv4()}.jpeg`);
+  const tempFilePath = path.join(__dirname, `temp-${uuidv4()}.${extension}`);
   await fs.promises.writeFile(tempFilePath, buffer);
   return tempFilePath;
+}
+
+// Função para extrair o MIME type e os dados base64 da string
+function extractMimeTypeAndData(base64String: string) {
+  const match = base64String.match(/^data:(.+?);base64,(.+)$/);
+  if (!match) {
+    throw new Error("Formato base64 inválido");
+  }
+  const mimeType = match[1];
+  const base64Data = match[2];
+  return { mimeType, base64Data };
 }
 
 // Recuperação da descrição da imagem

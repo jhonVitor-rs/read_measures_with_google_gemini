@@ -10,19 +10,28 @@ import { MeasureActions } from "./measure-actions";
 export const Columns: ColumnDef<Measure>[] = [
   {
     accessorKey: "measureType",
-    header: () => <div>Tipo</div>,
-    cell: ({ row }) => <div>{row.original.measureType}</div>,
+    header: () => <div className="text-xl font-bold">Tipo</div>,
+    cell: ({ row }) => (
+      <div className="text-lg font-semibold">
+        {row.original.measureType === "WATER" ? "Água" : "Gás"}
+      </div>
+    ),
   },
   {
     accessorKey: "measureValue",
-    header: () => <div>Valor</div>,
-    cell: ({ row }) => <div>{row.original.measureValue}</div>,
+    header: () => <div className="text-xl font-bold">Valor</div>,
+    cell: ({ row }) => (
+      <div className="text-lg font-semibold">{row.original.measureValue}</div>
+    ),
   },
   {
     accessorKey: "hasConfirmed",
-    header: () => <div>Status</div>,
+    header: () => <div className="text-xl font-bold">Status</div>,
     cell: ({ row }) => (
-      <Badge variant={!row.original.hasConfirmed ? "destructive" : "default"}>
+      <Badge
+        className="text-lg font-semibold"
+        variant={!row.original.hasConfirmed ? "destructive" : "default"}
+      >
         {!row.original.hasConfirmed ? "Pendente" : "Confirmado"}
       </Badge>
     ),
@@ -31,6 +40,7 @@ export const Columns: ColumnDef<Measure>[] = [
     accessorKey: "measureDatetime",
     header: ({ column }) => (
       <Button
+        className="text-xl font-bold"
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
@@ -38,7 +48,11 @@ export const Columns: ColumnDef<Measure>[] = [
         <ChevronsUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <div>{row.original.measureDatetime}</div>,
+    cell: ({ row }) => (
+      <div className="pl-4 text-lg font-semibold">
+        {row.original.measureDatetime}
+      </div>
+    ),
   },
   {
     id: "actions",

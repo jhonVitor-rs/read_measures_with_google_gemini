@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Ellipsis } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 
 export function MeasureActions() {
   return (
@@ -17,9 +17,9 @@ export function MeasureActions() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
+          className="flex h-10 w-10 p-0 data-[state=open]:bg-muted"
         >
-          <Ellipsis className="h-4 w-4" />
+          <EllipsisVertical className="size-6" />
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
