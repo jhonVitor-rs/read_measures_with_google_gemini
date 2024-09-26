@@ -54,12 +54,16 @@ export function MeasurePage() {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
+            "Cache-Control": "no-cache",
           },
+          cache: "no-store",
         },
       );
       const responseJson = await response.json();
+      console.log(responseJson);
 
       if (!response.ok) {
+        setResponseMeasures([]);
         toast({
           title: responseJson.error_code,
           description: responseJson.error_description,

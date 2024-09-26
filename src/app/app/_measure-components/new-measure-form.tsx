@@ -78,6 +78,7 @@ export function NewMeasureForm({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [selectedImage, setSelectedImage] = useState("");
   const [openCalendar, setOpenCalendar] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const form = useForm<z.infer<typeof measureSchema>>({
     resolver: zodResolver(measureSchema),
@@ -89,6 +90,7 @@ export function NewMeasureForm({ children }: { children: React.ReactNode }) {
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
+    setSending(true);
     const response = await fetch("/api/measures", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -115,6 +117,7 @@ export function NewMeasureForm({ children }: { children: React.ReactNode }) {
       ref.current?.click();
       router.refresh();
     }
+    setSending(false);
   });
 
   const onOpenChange = () => {
@@ -273,7 +276,9 @@ export function NewMeasureForm({ children }: { children: React.ReactNode }) {
               />
             </div>
             <DialogFooter>
-              <Button type="submit">Criar</Button>
+              <Button type="submit" disabled={sending}>
+                {sending ? "Enviando" : "Criar"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

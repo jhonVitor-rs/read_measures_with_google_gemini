@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 "use client";
 
 import {
@@ -11,7 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { EllipsisVertical } from "lucide-react";
 
-export function MeasureActions() {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function MeasureActions({ measureId }: { measureId: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -24,7 +26,7 @@ export function MeasureActions() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Visualizar</DropdownMenuItem>
+        <DropdownMenuItem>Confirmar</DropdownMenuItem>
         <DropdownMenuItem>Ajustar</DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem>

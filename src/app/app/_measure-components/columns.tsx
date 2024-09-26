@@ -56,6 +56,6 @@ export const Columns: ColumnDef<Measure>[] = [
   },
   {
     id: "actions",
-    cell: () => <MeasureActions />,
+    cell: ({ row }) => <MeasureActions measureId={row.original.id} />,
   },
 ];

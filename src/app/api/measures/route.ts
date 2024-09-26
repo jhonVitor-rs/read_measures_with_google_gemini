@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, data: measuresDate });
+    return NextResponse.json({ data: measuresDate });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       })
       .returning();
 
-    return NextResponse.json({ success: true, data: newMeasure[0] });
+    return NextResponse.json({ data: newMeasure[0] });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     return NextResponse.json(

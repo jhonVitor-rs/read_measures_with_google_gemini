@@ -29,7 +29,7 @@ export function SelectMeasureType({
         value={measureType}
         onValueChange={(e) => setMeasure(e)}
       >
-        <SelectTrigger className="max-w-64">
+        <SelectTrigger className="w-64">
           <SelectValue placeholder="Selecione um tipo de medição para filtrar" />
         </SelectTrigger>
         <SelectContent>
