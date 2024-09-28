@@ -1,4 +1,5 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -17,7 +18,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           Configurações
         </TabsTrigger>
       </TabsList>
-      {children}
+      <TooltipProvider>{children}</TooltipProvider>
     </Tabs>
   );
 }

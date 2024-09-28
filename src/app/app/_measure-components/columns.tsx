@@ -56,6 +56,13 @@ export const Columns: ColumnDef<Measure>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <MeasureActions measureId={row.original.id} />,
+    header: () => <div className="text-xl font-bold">Ações</div>,
+    cell: ({ row }) => (
+      <MeasureActions
+        measureId={row.original.id}
+        hasConfirmed={row.original.hasConfirmed || false}
+        measureValue={row.original.measureValue || 0}
+      />
+    ),
   },
 ];

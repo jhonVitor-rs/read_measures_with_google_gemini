@@ -1,39 +1,59 @@
 /* eslint-disable no-unused-vars */
 "use client";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { EllipsisVertical } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Check, Pencil, Trash2 } from "lucide-react";
+import { MeasureConfirm } from "./measure-confirm";
+import { DeleteMeasure } from "./delete-measure";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function MeasureActions({ measureId }: { measureId: string }) {
+export function MeasureActions({
+  measureId,
+  hasConfirmed,
+  measureValue,
+}: {
+  measureId: string;
+  hasConfirmed: boolean;
+  measureValue: number;
+}) {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="flex h-10 w-10 p-0 data-[state=open]:bg-muted"
-        >
-          <EllipsisVertical className="size-6" />
-          <span className="sr-only">Open menu</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>Confirmar</DropdownMenuItem>
-        <DropdownMenuItem>Ajustar</DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button size={"icon"} variant={"default"} disabled={hasConfirmed}>
+            <Check />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Comfirmar</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <MeasureConfirm
+            id={measureId}
+            value={measureValue}
+            hasConfirmed={hasConfirmed}
+          >
+            <Button size={"icon"} variant={"link"} disabled={hasConfirmed}>
+              <Pencil />
+            </Button>
+          </MeasureConfirm>
+        </TooltipTrigger>
+        <TooltipContent>Ajustar</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DeleteMeasure id={measureId}>
+            <Button size={"icon"} variant={"destructive"}>
+              <Trash2 />
+            </Button>
+          </DeleteMeasure>
+        </TooltipTrigger>
+        <TooltipContent>Excluir</TooltipContent>
+      </Tooltip>
+    </div>
   );
 }
