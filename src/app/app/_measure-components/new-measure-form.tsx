@@ -34,7 +34,7 @@ import {
 import { convertFileToBase64 } from "@/hooks/transform-image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogDescription } from "@radix-ui/react-dialog";
-import { ChangeEvent, useRef, useState } from "react";
+import { ChangeEvent, forwardRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { cn } from "@/lib/utils";
@@ -73,8 +73,10 @@ const measureSchema = z.object({
   type: z.enum(["WATER", "GAS"]),
 });
 
-export function NewMeasureForm({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
+export const NewMeasureForm = forwardRef<
+  HTMLDivElement,
+  { children: React.ReactNode; onClose: () => void }
+>(({ children, onClose }, ref) => {
   const router = useRouter();
   const [selectedImage, setSelectedImage] = useState("");
   const [openCalendar, setOpenCalendar] = useState(false);
@@ -114,7 +116,7 @@ export function NewMeasureForm({ children }: { children: React.ReactNode }) {
         title: "Sucesso",
         description: "Medição criada com sucesso",
       });
-      ref.current?.click();
+      onClose();
       router.refresh();
     }
     setSending(false);
@@ -285,4 +287,6 @@ export function NewMeasureForm({ children }: { children: React.ReactNode }) {
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+NewMeasureForm.displayName = "NewMeasureForm";

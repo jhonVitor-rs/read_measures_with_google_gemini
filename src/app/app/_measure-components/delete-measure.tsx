@@ -11,17 +11,17 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { ReactNode, useRef } from "react";
+import { forwardRef, ReactNode } from "react";
 
-export function DeleteMeasure({
-  children,
-  id,
-}: {
-  children: ReactNode;
-  id: string;
-}) {
+export const DeleteMeasure = forwardRef<
+  HTMLDivElement,
+  {
+    children: ReactNode;
+    id: string;
+    closeModal: () => void;
+  }
+>(({ children, id, closeModal }, ref) => {
   const router = useRouter();
-  const ref = useRef<HTMLDivElement>(null);
 
   const onDelete = async () => {
     const response = await fetch(`/api/measures/${id}`, {
@@ -41,7 +41,7 @@ export function DeleteMeasure({
         title: "Sucesso",
         description: "Medição deletada com sucesso",
       });
-      ref.current?.click();
+      closeModal();
       router.refresh();
     }
   };
@@ -64,4 +64,6 @@ export function DeleteMeasure({
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+DeleteMeasure.displayName = "DeleteMeasure";

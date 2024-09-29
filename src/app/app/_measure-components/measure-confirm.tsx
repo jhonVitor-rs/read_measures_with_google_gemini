@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { ReactNode, useRef } from "react";
+import { forwardRef, ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -33,22 +33,21 @@ const formSchema = z.object({
       required_error: "O valor é obrigatório",
       invalid_type_error: "O valor deve ser um número válido",
     })
-    .min(0, "O valor deve ser maior ou igual a 0"),
+    .min(0, "O valor deve ser maior ou igual a 0"), // Exemplo de validação adicional
 });
 
-export function MeasureConfirm({
-  children,
-  id,
-  value,
-  hasConfirmed,
-}: {
-  children: ReactNode;
-  id: string;
-  value: number;
-  hasConfirmed: boolean;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
+export const MeasureConfirm = forwardRef<
+  HTMLDivElement,
+  {
+    children: ReactNode;
+    id: string;
+    value: number;
+    hasConfirmed: boolean;
+    closeModal: () => void;
+  }
+>(({ children, id, value, hasConfirmed, closeModal }, ref) => {
   const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -77,8 +76,8 @@ export function MeasureConfirm({
         title: "Sucesso",
         description: "Medição ajustada com sucesso",
       });
+      closeModal();
       router.refresh();
-      ref.current?.click();
     }
   });
 
@@ -87,7 +86,7 @@ export function MeasureConfirm({
       <DialogTrigger asChild>
         <div ref={ref}>{children}</div>
       </DialogTrigger>
-      <DialogContent className="bg-black shadow shadow-primary">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Ajustar medição</DialogTitle>
           <DialogDescription>
@@ -106,7 +105,6 @@ export function MeasureConfirm({
                     <Input
                       autoComplete="off"
                       {...field}
-                      type="number"
                       disabled={hasConfirmed}
                     />
                   </FormControl>
@@ -127,4 +125,6 @@ export function MeasureConfirm({
       </DialogContent>
     </Dialog>
   );
-}
+});
+
+MeasureConfirm.displayName = "MeasureConfirm";

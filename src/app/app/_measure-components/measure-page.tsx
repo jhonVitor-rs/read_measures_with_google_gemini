@@ -29,54 +29,57 @@ import {
   getSortedRowModel,
   flexRender,
 } from "@tanstack/react-table";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Columns } from "./columns";
 import { Button } from "@/components/ui/button";
 import { Loader } from "@/components/loader";
 import { SelectMeasureType } from "./select-measure-type";
 import { NewMeasureForm } from "./new-measure-form";
+import { useQuery } from "@tanstack/react-query";
+
+const fetcher = async (measureType: string) => {
+  const response = await fetch(`/api/measures?measure_type=${measureType}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return response;
+};
 
 export function MeasurePage() {
+  const ref = useRef<HTMLDivElement>(null);
   const [measureType, setMeasureType] = useState("");
   const [responseMeasures, setResponseMeasures] = useState<Measure[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
+  const { data, isLoading } = useQuery({
+    queryKey: ["measures", measureType],
+    queryFn: () => fetcher(measureType),
+  });
+
   useEffect(() => {
     const getResponse = async () => {
-      const response = await fetch(
-        `/api/measures?measure_type=${measureType}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Cache-Control": "no-cache",
-          },
-          cache: "no-store",
-        },
-      );
-      const responseJson = await response.json();
-      console.log(responseJson);
-
-      if (!response.ok) {
-        setResponseMeasures([]);
-        toast({
-          title: responseJson.error_code,
-          description: responseJson.error_description,
-          variant: "destructive",
-        });
-      } else {
-        setResponseMeasures(responseJson.data);
+      if (!isLoading && data instanceof Response) {
+        const responseData = await data.json();
+        if (!data.ok) {
+          setResponseMeasures([]);
+          toast({
+            title: responseData.error_code,
+            description: responseData.error_description,
+            variant: "destructive",
+          });
+        } else {
+          setResponseMeasures(responseData.data);
+        }
       }
-      setIsLoading(false);
     };
-    setIsLoading(true);
     getResponse();
-  }, [measureType]);
+  }, [measureType, data, isLoading]);
 
   const table = useReactTable({
     data: responseMeasures,
@@ -110,7 +113,7 @@ export function MeasurePage() {
           measureType={measureType}
           onChange={changeMeasureType}
         />
-        <NewMeasureForm>
+        <NewMeasureForm onClose={() => ref.current?.click()} ref={ref}>
           <Button>Addicionar nova medição</Button>
         </NewMeasureForm>
       </CardHeader>
