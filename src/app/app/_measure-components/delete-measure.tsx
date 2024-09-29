@@ -9,9 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { forwardRef, ReactNode } from "react";
+import { DeleteMeasure as DeleteMeasureMutation } from "@/hooks/delete-measure";
 
 export const DeleteMeasure = forwardRef<
   HTMLDivElement,
@@ -22,28 +22,11 @@ export const DeleteMeasure = forwardRef<
   }
 >(({ children, id, closeModal }, ref) => {
   const router = useRouter();
+  const mutation = DeleteMeasureMutation({ id, onClose: closeModal });
 
   const onDelete = async () => {
-    const response = await fetch(`/api/measures/${id}`, {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const responseData = await response.json();
-    if (!response.ok) {
-      toast({
-        title: responseData.error_code,
-        description: responseData.error_description,
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: "Sucesso",
-        description: "Medição deletada com sucesso",
-      });
-      closeModal();
-      router.refresh();
-    }
+    mutation.mutate();
+    router.refresh();
   };
 
   return (

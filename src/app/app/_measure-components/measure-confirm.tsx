@@ -20,7 +20,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
+import { UpdateMeasure } from "@/hooks/update-measure";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { forwardRef, ReactNode } from "react";
@@ -47,6 +47,7 @@ export const MeasureConfirm = forwardRef<
   }
 >(({ children, id, value, hasConfirmed, closeModal }, ref) => {
   const router = useRouter();
+  const mutation = UpdateMeasure({ id, onClose: closeModal });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,29 +57,8 @@ export const MeasureConfirm = forwardRef<
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
-    const response = await fetch(`/api/measures/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        confirmed_value: data.value,
-      }),
-    });
-
-    const responseData = await response.json();
-    if (!response.ok) {
-      toast({
-        title: responseData.error_code,
-        description: responseData.error_description,
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: "Sucesso",
-        description: "Medição ajustada com sucesso",
-      });
-      closeModal();
-      router.refresh();
-    }
+    mutation.mutate({ confirmed_value: data.value });
+    router.refresh();
   });
 
   return (

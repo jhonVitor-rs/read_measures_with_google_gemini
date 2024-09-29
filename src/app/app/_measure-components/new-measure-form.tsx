@@ -41,8 +41,8 @@ import { cn } from "@/lib/utils";
 import { CalendarIcon, PlusIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { CreateMeasure } from "@/hooks/create-measure";
 
 const ACCEPTED_IMAGE_MIME_TYPES = [
   "image/jpeg",
@@ -81,6 +81,7 @@ export const NewMeasureForm = forwardRef<
   const [selectedImage, setSelectedImage] = useState("");
   const [openCalendar, setOpenCalendar] = useState(false);
   const [sending, setSending] = useState(false);
+  const mutation = CreateMeasure({ onClose });
 
   const form = useForm<z.infer<typeof measureSchema>>({
     resolver: zodResolver(measureSchema),
@@ -93,32 +94,12 @@ export const NewMeasureForm = forwardRef<
 
   const onSubmit = form.handleSubmit(async (data) => {
     setSending(true);
-    const response = await fetch("/api/measures", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        image: data.image,
-        measure_datetime: data.date,
-        measure_type: data.type,
-      }),
+    mutation.mutate({
+      image: data.image,
+      measure_datetime: data.date,
+      measure_type: data.type,
     });
-
-    const responseData = await response.json();
-    console.log(responseData);
-    if (!response.ok) {
-      toast({
-        title: responseData.error_code,
-        description: responseData.error_description,
-        variant: "default",
-      });
-    } else {
-      toast({
-        title: "Sucesso",
-        description: "Medição criada com sucesso",
-      });
-      onClose();
-      router.refresh();
-    }
+    router.refresh();
     setSending(false);
   });
 

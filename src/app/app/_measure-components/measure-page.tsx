@@ -44,7 +44,11 @@ const fetcher = async (measureType: string) => {
       "Content-Type": "application/json",
     },
   });
-  return response;
+
+  const success = response.ok;
+  const responseData = await response.json();
+
+  return { success, data: responseData };
 };
 
 export function MeasurePage() {
@@ -64,17 +68,16 @@ export function MeasurePage() {
 
   useEffect(() => {
     const getResponse = async () => {
-      if (!isLoading && data instanceof Response) {
-        const responseData = await data.json();
-        if (!data.ok) {
+      if (!isLoading) {
+        if (!data?.success) {
           setResponseMeasures([]);
           toast({
-            title: responseData.error_code,
-            description: responseData.error_description,
+            title: data?.data.error_code,
+            description: data?.data.error_description,
             variant: "destructive",
           });
         } else {
-          setResponseMeasures(responseData.data);
+          setResponseMeasures(data?.data);
         }
       }
     };

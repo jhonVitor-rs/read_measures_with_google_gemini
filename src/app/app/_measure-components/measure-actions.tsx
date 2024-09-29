@@ -11,6 +11,8 @@ import { Check, Pencil, Trash2 } from "lucide-react";
 import { MeasureConfirm } from "./measure-confirm";
 import { DeleteMeasure } from "./delete-measure";
 import { useRef } from "react";
+import { UpdateMeasure } from "@/hooks/update-measure";
+import { useRouter } from "next/navigation";
 
 export function MeasureActions({
   measureId,
@@ -22,16 +24,28 @@ export function MeasureActions({
   measureValue: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const onClose = () => {
     ref.current?.click();
+  };
+
+  const mutation = UpdateMeasure({ id: measureId });
+  const onConfirm = () => {
+    mutation.mutate({ confirmed_value: measureValue });
+    router.refresh();
   };
 
   return (
     <div className="flex items-center gap-2">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button size={"icon"} variant={"default"} disabled={hasConfirmed}>
+          <Button
+            size={"icon"}
+            variant={"default"}
+            disabled={hasConfirmed}
+            onClick={onConfirm}
+          >
             <Check />
           </Button>
         </TooltipTrigger>
