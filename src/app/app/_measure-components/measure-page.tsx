@@ -77,7 +77,7 @@ export function MeasurePage() {
             variant: "destructive",
           });
         } else {
-          setResponseMeasures(data?.data);
+          setResponseMeasures(data?.data.data);
         }
       }
     };

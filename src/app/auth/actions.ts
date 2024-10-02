@@ -70,9 +70,6 @@ export async function CreateUser(user: NewUser) {
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    return {
-      success: false,
-      message: errorMessage,
-    };
+    throw new Error(errorMessage);
   }
 }
