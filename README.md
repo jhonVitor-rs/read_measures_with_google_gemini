@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Leitor de Medição de Água e Gás
 
-## Getting Started
+## Descrição do Projeto
 
-First, run the development server:
+Este projeto é uma aplicação web que permite aos usuários fazer upload de imagens de medidores de água ou gás. A aplicação utiliza a API do Google Gemini para analisar as imagens e extrair os valores de medição. O projeto foi desenvolvido como parte de um desafio de vaga, utilizando tecnologias modernas de desenvolvimento web.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tecnologias Utilizadas
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- [Next.js](https://nextjs.org/) - Framework React para renderização do lado do servidor e geração de sites estáticos
+- [Drizzle ORM](https://orm.drizzle.team/) - ORM (Object-Relational Mapping) para TypeScript
+- [PostgreSQL](https://www.postgresql.org/) - Banco de dados relacional
+- [Docker](https://www.docker.com/) - Plataforma de containerização
+- [Google Gemini API](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini) - API de inteligência artificial para análise de imagens
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Funcionalidades
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Upload de imagens de medidores de água ou gás
+- Análise automática das imagens para extração dos valores de medição
+- Armazenamento dos dados de medição no banco de dados
+- Gerenciamento de usuários e autenticação
 
-## Learn More
+## Estrutura do Projeto
 
-To learn more about Next.js, take a look at the following resources:
+- API Routes do Next.js para manipulação de medições
+- Server Actions do Next.js para tarefas relacionadas aos usuários
+- Integração com o Google Gemini para análise de imagens
+- Banco de dados PostgreSQL executando em um container Docker
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Como Executar o Projeto
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone o repositório
+2. Instale as dependências com `npm install`
+3. Configure as variáveis de ambiente necessárias
+4. Inicie o container Docker com o PostgreSQL
+5. Execute as migrações do banco de dados
+6. Inicie o servidor de desenvolvimento com `npm run dev`
 
-## Deploy on Vercel
+## Contribuições
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Licença
+
+[Insira aqui a licença escolhida para o seu projeto]
