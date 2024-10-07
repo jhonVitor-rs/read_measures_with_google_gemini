@@ -58,15 +58,18 @@ const measureSchema = z.object({
       message: "Nenhuma imagem foi selecionada.",
     })
     .transform((list) => list.item(0))
-    .refine((file) => {
-      return file!.size <= 1024 * 1024 * 5;
-    }, "Tamanho maximo da imagem é de 5 MB.")
+    .refine((file) => file instanceof File, {
+      message: "Arquivo inválido selecionado.",
+    })
+    .refine((file) => file && file.size <= 1024 * 1024 * 5, {
+      message: "Tamanho máximo da imagem é de 5 MB.",
+    })
     .refine(
-      (file) => ACCEPTED_IMAGE_MIME_TYPES.includes(file!.type),
+      (file) => file && ACCEPTED_IMAGE_MIME_TYPES.includes(file.type),
       "Somente os formatos .jpg, .jpeg, .png e .webp são suportados",
     )
     .transform(async (file) => {
-      const base64 = await convertFileToBase64(file!);
+      const base64 = await convertFileToBase64(file);
       return base64;
     }),
   date: z.date().transform((date) => date.toISOString()),
@@ -80,8 +83,10 @@ export const NewMeasureForm = forwardRef<
   const router = useRouter();
   const [selectedImage, setSelectedImage] = useState("");
   const [openCalendar, setOpenCalendar] = useState(false);
-  const [sending, setSending] = useState(false);
-  const mutation = CreateMeasure({ onClose });
+
+  const mutation = CreateMeasure({
+    onClose,
+  });
 
   const form = useForm<z.infer<typeof measureSchema>>({
     resolver: zodResolver(measureSchema),
@@ -93,18 +98,17 @@ export const NewMeasureForm = forwardRef<
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
-    setSending(true);
     mutation.mutate({
       image: data.image,
       measure_datetime: data.date,
       measure_type: data.type,
     });
     router.refresh();
-    setSending(false);
   });
 
   const onOpenChange = () => {
     setOpenCalendar(false);
+    setSelectedImage("");
     form.reset({
       image: undefined,
       date: undefined,
@@ -114,7 +118,6 @@ export const NewMeasureForm = forwardRef<
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const fileInput = e.target.files;
-    console.log(fileInput);
     if (fileInput && fileInput.length > 0) {
       const selectedFile = fileInput[0];
       const imageUrl = URL.createObjectURL(selectedFile);
@@ -238,7 +241,9 @@ export const NewMeasureForm = forwardRef<
                           height={200}
                           alt={""}
                         />
-                        <PlusIcon className="absolute size-24" />
+                        {!selectedImage && (
+                          <PlusIcon className="absolute size-24" />
+                        )}
                         <Input
                           type="file"
                           id="img"
@@ -259,8 +264,8 @@ export const NewMeasureForm = forwardRef<
               />
             </div>
             <DialogFooter>
-              <Button type="submit" disabled={sending}>
-                {sending ? "Enviando" : "Criar"}
+              <Button type="submit" disabled={mutation.isPending}>
+                {mutation.isPending ? "Enviando" : "Criar"}
               </Button>
             </DialogFooter>
           </form>

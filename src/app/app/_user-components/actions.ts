@@ -22,40 +22,30 @@ export async function GetUser() {
   }
 }
 
-export async function UpdateUser(
-  id: string,
-  user: Partial<User>,
-  newPassword?: string,
-) {
+export async function VerifyPassword(id: string, currentPassword: string) {
+  const userData = await db.query.users.findFirst({
+    where: eq(users.id, id),
+  });
+  if (!userData) throw new Error("Usuário não encontrado");
+
+  const isEqualPassword = await bcrypt.compare(
+    currentPassword,
+    userData.password,
+  );
+  return isEqualPassword;
+}
+
+export async function GenSaltPassword(password: string) {
+  const salt = await bcrypt.hash(password, 10);
+  return salt;
+}
+
+export async function UpdateUser(id: string, user: Partial<User>) {
   try {
     const session = await GetSession();
 
     if (id !== session.id) {
-      throw new Error("Id do usuário imcopativel com a sessão");
-    }
-
-    if ((user.password && !newPassword) || (!user.password && newPassword)) {
-      throw new Error("Tipo de entrada invalida");
-    }
-
-    if (user.password !== "" && newPassword !== "") {
-      const userData = await db.query.users.findFirst({
-        where: eq(users.id, id),
-      });
-      if (!userData)
-        throw new Error("Impossivel atualizar senha, usuário não encontrado");
-
-      const isEqualPassword = await bcrypt.compare(
-        user.password as string,
-        userData.password,
-      );
-      if (!isEqualPassword) {
-        throw new Error("Senha não confere com sua senha atual");
-      }
-
-      if (newPassword) {
-        user.password = await bcrypt.hash(newPassword, 10);
-      }
+      throw new Error("Id do usuário incompatível com a sessão");
     }
 
     const updateUser = await db

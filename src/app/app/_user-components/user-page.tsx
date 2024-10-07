@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -15,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Pencil, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { GetUser } from "./actions";
@@ -23,17 +22,17 @@ import { toast } from "@/hooks/use-toast";
 import { UpdateUserMutation } from "@/hooks/update-user";
 import { useRouter } from "next/navigation";
 import { UserExit } from "./user-exit";
+import { UpdatePassword } from "./update-password";
 
 const formSchema = z.object({
   name: z.string().min(3, "O nome precisa ter mais de 3 letras"),
   email: z.string().email().min(5, "O e-mail precisa ter mais de 5 letras"),
-  password: z.string().optional(),
-  newPassword: z.string().optional(),
 });
 
 export function UserPage({ id }: { id: string }) {
   const [editMode, setEditMode] = useState(false);
   const router = useRouter();
+  const ref = useRef<HTMLDivElement>(null);
   const mutation = UpdateUserMutation(id);
 
   const { data, isError, error } = useSuspenseQuery({
@@ -56,16 +55,12 @@ export function UserPage({ id }: { id: string }) {
     defaultValues: {
       name: data.name as string,
       email: data.email as string,
-      password: "",
-      newPassword: "",
     },
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
-    console.log(data);
     mutation.mutate({
-      newPassword: data.newPassword,
-      user: { email: data.email, name: data.name, password: data.password },
+      user: { email: data.email, name: data.name },
     });
     setEditMode(false);
     router.refresh();
@@ -77,7 +72,14 @@ export function UserPage({ id }: { id: string }) {
         <form onSubmit={onSubmit}>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex-1">Dados do usuário</CardTitle>
-            <div>
+            <div className="flex items-center justify-center gap-2">
+              <UpdatePassword
+                id={id}
+                onClose={() => ref.current?.click()}
+                ref={ref}
+              >
+                <Button>Alterar Senha</Button>
+              </UpdatePassword>
               {!editMode ? (
                 <Button
                   onClick={() => setEditMode(true)}
@@ -148,47 +150,6 @@ export function UserPage({ id }: { id: string }) {
                 </FormItem>
               )}
             />
-            {editMode && (
-              <div className="flex w-full flex-col gap-4">
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          className="bg-black px-2 py-6 text-2xl font-semibold shadow shadow-primary"
-                          type="password"
-                          autoComplete="off"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="newPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input
-                          className="bg-black px-2 py-6 text-2xl font-semibold shadow shadow-primary"
-                          type="password"
-                          autoComplete="off"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                      <FormDescription className="flex w-full rounded-lg p-2 text-xl font-semibold">
-                        Utilize estes campos para atualizar sua senha
-                      </FormDescription>
-                    </FormItem>
-                  )}
-                />
-              </div>
-            )}
           </CardContent>
         </form>
       </Form>

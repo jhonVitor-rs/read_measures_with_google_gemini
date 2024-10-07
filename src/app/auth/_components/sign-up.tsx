@@ -24,6 +24,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { CreateUser } from "../actions";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { NewUser, User } from "@/services/db/schemas/user";
 
 const UserSchema = z.object({
   name: z
@@ -40,6 +42,8 @@ const UserSchema = z.object({
 });
 
 export function SignUp() {
+  const queryClient = useQueryClient();
+
   const form = useForm({
     resolver: zodResolver(UserSchema),
     defaultValues: {
@@ -51,26 +55,36 @@ export function SignUp() {
 
   const router = useRouter(); // Use router to navigate after successful sign-in
 
+  const mutation = useMutation({
+    mutationFn: async (user: NewUser) =>
+      await CreateUser({
+        name: user.name,
+        email: user.email,
+        password: user.password,
+      }),
+    onSuccess: (data) => {
+      queryClient.setQueryData<User>(["user", data.id], (user) => user);
+      toast({
+        title: "Sucesso",
+        description: "Usuário criado com sucesso.",
+      });
+      router.push("/");
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = form.handleSubmit(async (data) => {
-    const { success, message } = await CreateUser({
+    mutation.mutate({
       name: data.name,
       email: data.email,
       password: data.password,
     });
-
-    if (!success) {
-      toast({
-        title: "Erro",
-        description: message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Sucesso",
-        description: message,
-      });
-      router.push("/");
-    }
   });
 
   return (

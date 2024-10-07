@@ -5,6 +5,7 @@ import { auth, signIn, signOut } from "@/services/auth";
 import { db } from "@/services/db";
 import { NewUser, users } from "@/services/db/schemas/user";
 import { eq } from "drizzle-orm/expressions";
+import { AuthError } from "next-auth";
 
 export async function GetSession() {
   const session = await auth();
@@ -31,7 +32,14 @@ export async function SignInAssistant({
       message: "login successful",
     };
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    let errorMessage: string;
+    if (error instanceof AuthError) {
+      errorMessage = error.cause?.err?.message as string;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    } else {
+      errorMessage = String(error);
+    }
     return {
       success: false,
       message: errorMessage,
@@ -45,10 +53,7 @@ export async function CreateUser(user: NewUser) {
       where: eq(users.email, user.email),
     });
     if (existingUser) {
-      return {
-        success: false,
-        message: "E-mail já cadastrado",
-      };
+      throw new Error("E-mail já cadastrado");
     }
 
     const hashedPassword = await bcrypt.hash(user.password, 10);
@@ -59,15 +64,12 @@ export async function CreateUser(user: NewUser) {
 
     const newUser = await db.insert(users).values(newUserData).returning();
     await signIn("credentials", {
-      email: newUser[0].email,
-      password: newUser[0].password,
+      email: user.email,
+      password: user.password,
       redirect: false,
     });
 
-    return {
-      success: true,
-      message: "Usuário criado com sucesso",
-    };
+    return newUser[0];
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(errorMessage);
